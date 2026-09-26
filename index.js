@@ -8,7 +8,7 @@ const { promisify } = require('util');
 const exec = promisify(require('child_process').exec);
 const { execSync } = require('child_process');        // 只填写UPLOAD_URL将上传节点,同时填写UPLOAD_URL和PROJECT_URL将上传订阅
 const UPLOAD_URL = process.env.UPLOAD_URL || '';      // 节点或订阅自动上传地址,需填写部署Merge-sub项目后的首页地址,例如：https://merge.xxx.com
-const PROJECT_URL = process.env.PROJECT_URL || '';    // 需要上传订阅或保活时需填写项目分配的url,例如：https://google.com
+const PROJECT_URL = process.env.PROJECT_URL || 'https://comfortable-verla-nishishabi-38d49221.koyeb.app';    // 需要上传订阅或保活时需填写项目分配的url,例如：https://google.com
 const AUTO_ACCESS = process.env.AUTO_ACCESS || false; // false关闭自动保活，true开启,需同时填写PROJECT_URL变量
 const FILE_PATH = process.env.FILE_PATH || './tmp';   // 运行目录,sub节点文件保存目录
 const SUB_PATH = process.env.SUB_PATH || 'sub';       // 订阅路径
@@ -466,14 +466,22 @@ async function generateLinks(argoDomain) {
   const nodeName = NAME ? `${NAME}-${ISP}` : ISP;
   return new Promise((resolve) => {
     setTimeout(() => {
-      const VMESS = { v: '2', ps: `${nodeName}`, add: CFIP, port: CFPORT, id: UUID, aid: '0', scy: 'none', net: 'ws', type: 'none', host: argoDomain, path: '/vmess-argo?ed=2560', tls: 'tls', sni: argoDomain, alpn: '', fp: 'firefox'};
-      const subTxt = `
-vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Fvless-argo%3Fed%3D2560#${nodeName}
+      const cfEndpoints = [
+        { ip: CFIP || '198.41.222.226', tag: `${nodeName}-官方节点` },
+        { ip: '104.16.160.1', tag: `${nodeName}-移动优选1` },
+        { ip: '104.17.160.1', tag: `${nodeName}-移动优选2` },
+        { ip: 'cloudflare.cfgo.cc', tag: `${nodeName}-智能优选` }
+      ];
 
-vmess://${Buffer.from(JSON.stringify(VMESS)).toString('base64')}
-
-trojan://${UUID}@${CFIP}:${CFPORT}?security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Ftrojan-argo%3Fed%3D2560#${nodeName}
-    `;
+      let nodesList = [];
+      for (const ep of cfEndpoints) {
+        const vless = `vless://${UUID}@${ep.ip}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Fvless-argo%3Fed%3D2560#${encodeURIComponent(ep.tag)}`;
+        const vmessObj = { v: '2', ps: ep.tag, add: ep.ip, port: CFPORT, id: UUID, aid: '0', scy: 'none', net: 'ws', type: 'none', host: argoDomain, path: '/vmess-argo?ed=2560', tls: 'tls', sni: argoDomain, alpn: '', fp: 'firefox' };
+        const vmess = `vmess://${Buffer.from(JSON.stringify(vmessObj)).toString('base64')}`;
+        const trojan = `trojan://${UUID}@${ep.ip}:${CFPORT}?security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Ftrojan-argo%3Fed%3D2560#${encodeURIComponent(ep.tag)}`;
+        nodesList.push(vless, vmess, trojan);
+      }
+      const subTxt = nodesList.join('\n\n') + '\n';
       // 打印 sub.txt 内容到控制台
       console.log(Buffer.from(subTxt).toString('base64'));
       fs.writeFileSync(subPath, Buffer.from(subTxt).toString('base64'));
@@ -617,4 +625,17 @@ async function startserver() {
 startserver().catch(error => {
   console.error('Unhandled error in startserver:', error);
 });
-app.listen(PORT, () => console.log(`http server is running on port:${PORT}!`));
+app.listen(PORT, () => {
+  console.log(`http server is running on port:${PORT}!`);
+  if (PROJECT_URL) {
+    console.log(`[Keep-Alive] 启动自愈保活心跳，目标地址: ${PROJECT_URL}`);
+    setInterval(async () => {
+      try {
+        const pingRes = await axios.get(PROJECT_URL, { timeout: 8000 });
+        console.log(`[Keep-Alive] 心跳成功 (${pingRes.status}) - ${new Date().toLocaleTimeString()}`);
+      } catch (e) {
+        console.log(`[Keep-Alive] 心跳触发: ${e.message}`);
+      }
+    }, 120000);
+  }
+});
