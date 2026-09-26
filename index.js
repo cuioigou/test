@@ -487,8 +487,84 @@ async function generateLinks(argoDomain) {
       fs.writeFileSync(subPath, Buffer.from(subTxt).toString('base64'));
       console.log(`${FILE_PATH}/sub.txt saved successfully`);
       uploadNodes();
-      // 将内容进行 base64 编码并写入 SUB_PATH 路由
+      // 生成原生 Clash 配置文件
+      function generateClashConfig() {
+        let proxyLines = [];
+        let proxyNames = [];
+
+        for (const ep of cfEndpoints) {
+          const vlessName = `${ep.tag}-VLESS`;
+          const vmessName = `${ep.tag}-VMess`;
+          const trojanName = `${ep.tag}-Trojan`;
+
+          proxyNames.push(vlessName, vmessName, trojanName);
+
+          proxyLines.push(`  - name: "${vlessName}"\n    type: vless\n    server: ${ep.ip}\n    port: ${CFPORT}\n    uuid: ${UUID}\n    cipher: none\n    tls: true\n    client-fingerprint: firefox\n    servername: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/vless-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}`);
+
+          proxyLines.push(`  - name: "${vmessName}"\n    type: vmess\n    server: ${ep.ip}\n    port: ${CFPORT}\n    uuid: ${UUID}\n    alterId: 0\n    cipher: auto\n    tls: true\n    client-fingerprint: firefox\n    servername: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/vmess-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}`);
+
+          proxyLines.push(`  - name: "${trojanName}"\n    type: trojan\n    server: ${ep.ip}\n    port: ${CFPORT}\n    password: ${UUID}\n    client-fingerprint: firefox\n    sni: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/trojan-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}`);
+        }
+
+        const proxyGroupItems = proxyNames.map(n => `      - "${n}"`).join('\n');
+
+        return `port: 7890
+socks-port: 7891
+allow-lan: false
+mode: rule
+log-level: info
+unified-delay: true
+
+proxies:
+${proxyLines.join('\n\n')}
+
+proxy-groups:
+  - name: "🚀 节点选择"
+    type: select
+    proxies:
+      - "♻️ 自动选择"
+      - "🔯 故障转移"
+${proxyGroupItems}
+      - DIRECT
+
+  - name: "♻️ 自动选择"
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    proxies:
+${proxyGroupItems}
+
+  - name: "🔯 故障转移"
+    type: fallback
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    proxies:
+${proxyGroupItems}
+
+rules:
+  - GEOIP,CN,DIRECT
+  - MATCH,"🚀 节点选择"
+`;
+      }
+
+      const clashConfig = generateClashConfig();
+      fs.writeFileSync(path.join(FILE_PATH, 'clash.yaml'), clashConfig);
+      console.log(`${FILE_PATH}/clash.yaml saved successfully`);
+
+      // 1. 原生 /clash 路由：供 Clash Verge 专用
+      app.get('/clash', (req, res) => {
+        res.set('Content-Type', 'text/yaml; charset=utf-8');
+        res.send(clashConfig);
+      });
+
+      // 2. 智能 /sub 路由：若客户端是 Clash 或带有 ?clash 参数，自动返回 Clash YAML；否则返回通用 Base64
       app.get(`/${SUB_PATH}`, (req, res) => {
+        const ua = (req.headers['user-agent'] || '').toLowerCase();
+        if (ua.includes('clash') || req.query.clash !== undefined) {
+          res.set('Content-Type', 'text/yaml; charset=utf-8');
+          return res.send(clashConfig);
+        }
         const encodedContent = Buffer.from(subTxt).toString('base64');
         res.set('Content-Type', 'text/plain; charset=utf-8');
         res.send(encodedContent);
