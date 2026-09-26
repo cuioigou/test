@@ -461,17 +461,60 @@ async function getMetaInfo() {
   return 'Unknown';
 }
 // 生成 list 和 sub 信息
+// 动态获取针对中国移动/广电的最新优选 IP 池 (基于 cmliu addressesapi)
+function fetchDynamicCleanIps() {
+  return new Promise((resolve) => {
+    const https = require('https');
+    const req = https.get('https://addressesapi.090227.xyz/CloudFlareYes', {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      timeout: 6000
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try {
+          const lines = data.split('\n').map(l => l.trim()).filter(Boolean);
+          const cmIps = lines
+            .filter(l => l.includes('CM-'))
+            .map(l => l.split('#')[0].trim())
+            .filter(ip => /^(\d{1,3}\.){3}\d{1,3}$/.test(ip));
+          const uniqueCm = [...new Set(cmIps)];
+          resolve(uniqueCm.slice(0, 3));
+        } catch (e) {
+          resolve([]);
+        }
+      });
+    });
+    req.on('error', () => resolve([]));
+    req.on('timeout', () => { req.destroy(); resolve([]); });
+  });
+}
+
 async function generateLinks(argoDomain) {
   const ISP = await getMetaInfo();
   const nodeName = NAME ? `${NAME}-${ISP}` : ISP;
+
+  let dynamicCm = [];
+  try {
+    dynamicCm = await fetchDynamicCleanIps();
+    console.log('Fetched dynamic CM clean IPs:', dynamicCm);
+  } catch (e) {
+    console.log('Fetch dynamic CM clean IPs failed, using fallback.');
+  }
+
+  const fallbackCm = ['104.16.160.1', '104.17.160.1', '104.18.160.1'];
+  const cmList = (dynamicCm && dynamicCm.length >= 2) ? dynamicCm : fallbackCm;
+
+  const cfEndpoints = [
+    { ip: CFIP || '198.41.222.226', tag: `${nodeName}-官方Anycast` },
+    { ip: cmList[0] || '104.16.160.1', tag: `${nodeName}-移动动态优选1` },
+    { ip: cmList[1] || '104.17.160.1', tag: `${nodeName}-移动动态优选2` },
+    { ip: cmList[2] || '104.18.160.1', tag: `${nodeName}-移动动态优选3` },
+    { ip: 'icook.hk', tag: `${nodeName}-香港企业优选` }
+  ];
+
   return new Promise((resolve) => {
     setTimeout(() => {
-      const cfEndpoints = [
-        { ip: CFIP || '198.41.222.226', tag: `${nodeName}-官方节点` },
-        { ip: '104.16.160.1', tag: `${nodeName}-移动优选1` },
-        { ip: '104.17.160.1', tag: `${nodeName}-移动优选2` },
-        { ip: 'cloudflare.cfgo.cc', tag: `${nodeName}-智能优选` }
-      ];
 
       let nodesList = [];
       for (const ep of cfEndpoints) {
