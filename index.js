@@ -519,15 +519,15 @@ proxies:
 ${proxyLines.join('\n\n')}
 
 proxy-groups:
-  - name: "🚀 节点选择"
+  - name: 节点选择
     type: select
     proxies:
-      - "♻️ 自动选择"
-      - "🔯 故障转移"
+      - 自动选择
+      - 故障转移
 ${proxyGroupItems}
       - DIRECT
 
-  - name: "♻️ 自动选择"
+  - name: 自动选择
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
@@ -535,7 +535,7 @@ ${proxyGroupItems}
     proxies:
 ${proxyGroupItems}
 
-  - name: "🔯 故障转移"
+  - name: 故障转移
     type: fallback
     url: http://www.gstatic.com/generate_204
     interval: 300
@@ -544,7 +544,7 @@ ${proxyGroupItems}
 
 rules:
   - GEOIP,CN,DIRECT
-  - MATCH,"🚀 节点选择"
+  - MATCH,节点选择
 `;
       }
 
