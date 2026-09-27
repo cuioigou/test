@@ -17,9 +17,9 @@ const UUID = process.env.UUID || '253720b2-8f27-4ece-b4bc-00534378d4c1'; // 使�
 const NEZHA_SERVER = process.env.NEZHA_SERVER || '';        // 哪吒v1填写形式: nz.abc.com:8008  哪吒v0填写形式：nz.abc.com
 const NEZHA_PORT = process.env.NEZHA_PORT || '';            // 使用哪吒v1请留空，哪吒v0需填写
 const NEZHA_KEY = process.env.NEZHA_KEY || '';              // 哪吒v1的NZ_CLIENT_SECRET或哪吒v0的agent密钥
-const ARGO_DOMAIN = process.env.ARGO_DOMAIN || '';          // 固定隧道域名,留空即启用临时隧道
-const ARGO_AUTH = process.env.ARGO_AUTH || '';              // 固定隧道密钥json或token,留空即启用临时隧道,json获取地址：https://json.zone.id
-const ARGO_PORT = process.env.ARGO_PORT || 8001;            // 固定隧道端口,使用token需在cloudflare后台设置和这里一致
+const ARGO_DOMAIN = process.env.ARGO_DOMAIN || 'koyeb.litex1024.dpdns.org';          // 固定隧道域名
+const ARGO_AUTH = process.env.ARGO_AUTH || 'eyJhIjoiYTYyZGRhZTMxODRlYmFlMzU4ZmQxMjBkYjFkYzM1MjciLCJ0IjoiZDRjNjM2ZTUtMzgyYi00ODE3LWI1MjctYjdjNDZkNTJiNzM1IiwicyI6InJlT29vcTJ2bUlVd2dxNGZVNC9yMy9XM0ZDRERDSFBLTHNqQ0ZXTWtYc2M9In0=';              // 固定隧道token
+const ARGO_PORT = process.env.ARGO_PORT || 8001;            // 固定隧道端口
 const CFIP = process.env.CFIP || '198.41.222.226';        // 节点优选域名或优选ip  
 const CFPORT = process.env.CFPORT || 443;                   // 节点优选域名或优选ip对应的端口
 const NAME = process.env.NAME || '';                        // 节点名称
@@ -298,7 +298,7 @@ uuid: ${UUID}`;
   if (fs.existsSync(botPath)) {
     let args;
 
-    if (ARGO_AUTH.match(/^[A-Z0-9a-z=]{120,250}$/)) {
+    if (ARGO_AUTH.match(/^[A-Za-z0-9+/=_-]{100,300}$/)) {
       args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 run --token ${ARGO_AUTH}`;
     } else if (ARGO_AUTH.match(/TunnelSecret/)) {
       args = `tunnel --edge-ip-version auto --config ${FILE_PATH}/tunnel.yml run`;
