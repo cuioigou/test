@@ -542,11 +542,11 @@ async function generateLinks(argoDomain) {
 
           proxyNames.push(vlessName, vmessName, trojanName);
 
-          proxyLines.push(`  - name: "${vlessName}"\n    type: vless\n    server: ${ep.ip}\n    port: ${CFPORT}\n    uuid: ${UUID}\n    cipher: none\n    tls: true\n    client-fingerprint: firefox\n    servername: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/vless-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}`);
+          proxyLines.push(`  - name: "${vlessName}"\n    type: vless\n    server: ${ep.ip}\n    port: ${CFPORT}\n    uuid: ${UUID}\n    cipher: none\n    tls: true\n    client-fingerprint: firefox\n    servername: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/vless-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}\n      heartbeat-interval: 20`);
 
-          proxyLines.push(`  - name: "${vmessName}"\n    type: vmess\n    server: ${ep.ip}\n    port: ${CFPORT}\n    uuid: ${UUID}\n    alterId: 0\n    cipher: auto\n    tls: true\n    client-fingerprint: firefox\n    servername: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/vmess-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}`);
+          proxyLines.push(`  - name: "${vmessName}"\n    type: vmess\n    server: ${ep.ip}\n    port: ${CFPORT}\n    uuid: ${UUID}\n    alterId: 0\n    cipher: auto\n    tls: true\n    client-fingerprint: firefox\n    servername: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/vmess-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}\n      heartbeat-interval: 20`);
 
-          proxyLines.push(`  - name: "${trojanName}"\n    type: trojan\n    server: ${ep.ip}\n    port: ${CFPORT}\n    password: ${UUID}\n    client-fingerprint: firefox\n    sni: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/trojan-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}`);
+          proxyLines.push(`  - name: "${trojanName}"\n    type: trojan\n    server: ${ep.ip}\n    port: ${CFPORT}\n    password: ${UUID}\n    client-fingerprint: firefox\n    sni: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/trojan-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}\n      heartbeat-interval: 20`);
         }
 
         const proxyGroupItems = proxyNames.map(n => `      - "${n}"`).join('\n');
@@ -557,6 +557,8 @@ allow-lan: false
 mode: rule
 log-level: info
 unified-delay: true
+tcp-concurrent: true
+keep-alive-interval: 30
 
 dns:
   enable: true
@@ -608,7 +610,8 @@ ${proxyGroupItems}
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
-    tolerance: 50
+    tolerance: 150
+    lazy: true
     proxies:
 ${proxyGroupItems}
 
@@ -616,6 +619,7 @@ ${proxyGroupItems}
     type: fallback
     url: http://www.gstatic.com/generate_204
     interval: 300
+    lazy: true
     proxies:
 ${proxyGroupItems}
 
@@ -791,6 +795,6 @@ app.listen(PORT, () => {
       } catch (e) {
         console.log(`[Keep-Alive] 心跳触发: ${e.message}`);
       }
-    }, 120000);
+    }, 45000);
   }
 });
