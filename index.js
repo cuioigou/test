@@ -576,7 +576,9 @@ async function generateLinks(argoDomain) {
         for (const sp of staticProxies) proxyLines.push(sp.yaml);
         const staticNames = staticProxies.map(s => s.name);
 
-        const proxyNames = [...staticNames, ...vlessNames, ...trojanNames, ...vmessNames];
+        // 日常主组只留美国节点：自动选择按延迟会吸到悉尼(140ms)，导致日常流量跑澳洲；
+        // 日澳5节点只在 🎲 预测与交易 里保留（见下方），日常锁定美国主IP (2026-09-29)
+        const proxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
         const proxyGroupItems = proxyNames.map(n => `      - "${n}"`).join('\n');
 
         return `port: 7890
