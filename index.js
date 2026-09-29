@@ -533,14 +533,18 @@ async function generateLinks(argoDomain) {
       // 生成原生 Clash 配置文件
       function generateClashConfig() {
         let proxyLines = [];
-        let proxyNames = [];
+        let vlessNames = [];
+        let trojanNames = [];
+        let vmessNames = [];
 
         for (const ep of cfEndpoints) {
           const vlessName = `${ep.tag}-VLESS`;
           const vmessName = `${ep.tag}-VMess`;
           const trojanName = `${ep.tag}-Trojan`;
 
-          proxyNames.push(vlessName, vmessName, trojanName);
+          vlessNames.push(vlessName);
+          trojanNames.push(trojanName);
+          vmessNames.push(vmessName);
 
           proxyLines.push(`  - name: "${vlessName}"\n    type: vless\n    server: ${ep.ip}\n    port: ${CFPORT}\n    uuid: ${UUID}\n    cipher: none\n    tls: true\n    client-fingerprint: firefox\n    servername: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/vless-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}\n      heartbeat-interval: 20`);
 
@@ -549,6 +553,7 @@ async function generateLinks(argoDomain) {
           proxyLines.push(`  - name: "${trojanName}"\n    type: trojan\n    server: ${ep.ip}\n    port: ${CFPORT}\n    password: ${UUID}\n    client-fingerprint: firefox\n    sni: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/trojan-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}\n      heartbeat-interval: 20`);
         }
 
+        const proxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
         const proxyGroupItems = proxyNames.map(n => `      - "${n}"`).join('\n');
 
         return `port: 7890
