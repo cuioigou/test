@@ -690,6 +690,123 @@ rules:
         res.send(clashConfig);
       });
 
+      // 1.1 专属 /hy2 路由：供手机端 Clash (ClashMi / Flclash / Clash Meta) 极速直连 RackNerd Hysteria 2
+      app.get('/hy2', (req, res) => {
+        const hy2Config = `port: 7890
+socks-port: 7891
+allow-lan: false
+mode: rule
+log-level: info
+unified-delay: true
+
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+proxies:
+  - name: "🇺🇸 RackNerd-圣何塞 (Hysteria 2 极速跳跃)"
+    type: hysteria2
+    server: 107.172.82.170
+    ports: "20000-30000"
+    password: bf806dba-a7db-43c6-bc03-b342b621687b
+    sni: www.bing.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    obfs: salamander
+    obfs-password: antigravity
+
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies:
+      - "🇺🇸 RackNerd-圣何塞 (Hysteria 2 极速跳跃)"
+      - DIRECT
+
+rules:
+  - GEOIP,CN,DIRECT
+  - MATCH,节点选择
+`;
+        res.set('Content-Type', 'text/yaml; charset=utf-8');
+        res.send(hy2Config);
+      });
+
+      // 1.2 专属 /aws 路由：供手机端 Clash 极速直连 AWS 澳大利亚悉尼双协议
+      app.get('/aws', (req, res) => {
+        const awsConfig = `port: 7890
+socks-port: 7891
+allow-lan: false
+mode: rule
+log-level: info
+unified-delay: true
+
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+proxies:
+  - name: "🇦🇺 AWS-悉尼 (Reality)"
+    type: vless
+    server: 52.63.184.33
+    port: 443
+    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8
+    cipher: none
+    tls: true
+    flow: xtls-rprx-vision
+    servername: itunes.apple.com
+    client-fingerprint: chrome
+    reality-opts:
+      public-key: sRgRqjxLPHK9FhGyVodwm7lTrj5H6dae8fwTn8dd4Vg
+      short-id: e8a9b2c3
+
+  - name: "🇦🇺 AWS-悉尼 (Hysteria2)"
+    type: hysteria2
+    server: 52.63.184.33
+    port: 443
+    password: nishishabi
+    sni: itunes.apple.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies:
+      - "🇦🇺 AWS-悉尼 (Reality)"
+      - "🇦🇺 AWS-悉尼 (Hysteria2)"
+      - DIRECT
+
+rules:
+  - GEOIP,CN,DIRECT
+  - MATCH,节点选择
+`;
+        res.set('Content-Type', 'text/yaml; charset=utf-8');
+        res.send(awsConfig);
+      });
+
       // 2. 智能 /sub 路由：若客户端是 Clash 或带有 ?clash 参数，自动返回 Clash YAML；否则返回通用 Base64
       app.get(`/${SUB_PATH}`, (req, res) => {
         const ua = (req.headers['user-agent'] || '').toLowerCase();
