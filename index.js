@@ -517,6 +517,18 @@ async function generateLinks(argoDomain) {
     setTimeout(() => {
 
       let nodesList = [];
+      const AU_UUID = 'f773fcf5-7d63-4583-a707-2bce59ee1ae8';
+      const AU_REALITY_PBK = 'sRgRqjxLPHK9FhGyVodwm7lTrj5H6dae8fwTn8dd4Vg';
+      const AU_REALITY_SID = 'e8a9b2c3';
+      const JP_HOST = 'jp.litex1024.dpdns.org';
+      const JP_PATH = '%2Ff773fcf5';
+      const staticSubLinks = [
+        `vless://${AU_UUID}@52.63.184.33:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=itunes.apple.com&fp=chrome&pbk=${AU_REALITY_PBK}&sid=${AU_REALITY_SID}&type=tcp#${encodeURIComponent('🇦🇺 AWS-悉尼 (Reality)')}`,
+        `hysteria2://nishishabi@52.63.184.33:443?sni=itunes.apple.com&insecure=1#${encodeURIComponent('🇦🇺 AWS-悉尼 (Hysteria2)')}`,
+        `vless://${AU_UUID}@${JP_HOST}:443?encryption=none&security=tls&sni=${JP_HOST}&fp=chrome&type=ws&host=${JP_HOST}&path=${JP_PATH}#${encodeURIComponent('🇯🇵 日本东京-Vercel (域名直连)')}`,
+        `vless://${AU_UUID}@icook.hk:443?encryption=none&security=tls&sni=${JP_HOST}&fp=chrome&type=ws&host=${JP_HOST}&path=${JP_PATH}#${encodeURIComponent('🇯🇵 日本东京-Vercel (香港优选)')}`,
+        `vless://${AU_UUID}@104.21.14.15:443?encryption=none&security=tls&sni=${JP_HOST}&fp=chrome&type=ws&host=${JP_HOST}&path=${JP_PATH}#${encodeURIComponent('🇯🇵 日本东京-Vercel (Anycast优选)')}`
+      ];
       for (const ep of cfEndpoints) {
         const vless = `vless://${UUID}@${ep.ip}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Fvless-argo%3Fed%3D2560#${encodeURIComponent(ep.tag)}`;
         const vmessObj = { v: '2', ps: ep.tag, add: ep.ip, port: CFPORT, id: UUID, aid: '0', scy: 'none', net: 'ws', type: 'none', host: argoDomain, path: '/vmess-argo?ed=2560', tls: 'tls', sni: argoDomain, alpn: '', fp: 'firefox' };
@@ -524,6 +536,7 @@ async function generateLinks(argoDomain) {
         const trojan = `trojan://${UUID}@${ep.ip}:${CFPORT}?security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Ftrojan-argo%3Fed%3D2560#${encodeURIComponent(ep.tag)}`;
         nodesList.push(vless, vmess, trojan);
       }
+      nodesList.push(...staticSubLinks);
       const subTxt = nodesList.join('\n\n') + '\n';
       // 打印 sub.txt 内容到控制台
       console.log(Buffer.from(subTxt).toString('base64'));
@@ -553,7 +566,17 @@ async function generateLinks(argoDomain) {
           proxyLines.push(`  - name: "${trojanName}"\n    type: trojan\n    server: ${ep.ip}\n    port: ${CFPORT}\n    password: ${UUID}\n    client-fingerprint: firefox\n    sni: ${argoDomain}\n    network: ws\n    ws-opts:\n      path: "/trojan-argo?ed=2560"\n      headers:\n        Host: ${argoDomain}\n      heartbeat-interval: 20`);
         }
 
-        const proxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
+        const staticProxies = [
+          { name: '🇦🇺 AWS-悉尼 (Reality)', yaml: `  - name: "🇦🇺 AWS-悉尼 (Reality)"\n    type: vless\n    server: 52.63.184.33\n    port: 443\n    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8\n    network: tcp\n    tls: true\n    udp: true\n    flow: xtls-rprx-vision\n    servername: itunes.apple.com\n    reality-opts:\n      public-key: sRgRqjxLPHK9FhGyVodwm7lTrj5H6dae8fwTn8dd4Vg\n      short-id: e8a9b2c3\n    client-fingerprint: chrome` },
+          { name: '🇦🇺 AWS-悉尼 (Hysteria2)', yaml: `  - name: "🇦🇺 AWS-悉尼 (Hysteria2)"\n    type: hysteria2\n    server: 52.63.184.33\n    port: 443\n    password: nishishabi\n    sni: itunes.apple.com\n    skip-cert-verify: true` },
+          { name: '🇯🇵 日本东京-Vercel (域名直连)', yaml: `  - name: "🇯🇵 日本东京-Vercel (域名直连)"\n    type: vless\n    server: jp.litex1024.dpdns.org\n    port: 443\n    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8\n    cipher: none\n    tls: true\n    client-fingerprint: chrome\n    servername: jp.litex1024.dpdns.org\n    network: ws\n    ws-opts:\n      path: "/f773fcf5"\n      headers:\n        Host: jp.litex1024.dpdns.org\n      heartbeat-interval: 20` },
+          { name: '🇯🇵 日本东京-Vercel (香港优选)', yaml: `  - name: "🇯🇵 日本东京-Vercel (香港优选)"\n    type: vless\n    server: icook.hk\n    port: 443\n    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8\n    cipher: none\n    tls: true\n    client-fingerprint: chrome\n    servername: jp.litex1024.dpdns.org\n    network: ws\n    ws-opts:\n      path: "/f773fcf5"\n      headers:\n        Host: jp.litex1024.dpdns.org\n      heartbeat-interval: 20` },
+          { name: '🇯🇵 日本东京-Vercel (Anycast优选)', yaml: `  - name: "🇯🇵 日本东京-Vercel (Anycast优选)"\n    type: vless\n    server: 104.21.14.15\n    port: 443\n    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8\n    cipher: none\n    tls: true\n    client-fingerprint: chrome\n    servername: jp.litex1024.dpdns.org\n    network: ws\n    ws-opts:\n      path: "/f773fcf5"\n      headers:\n        Host: jp.litex1024.dpdns.org\n      heartbeat-interval: 20` }
+        ];
+        for (const sp of staticProxies) proxyLines.push(sp.yaml);
+        const staticNames = staticProxies.map(s => s.name);
+
+        const proxyNames = [...staticNames, ...vlessNames, ...trojanNames, ...vmessNames];
         const proxyGroupItems = proxyNames.map(n => `      - "${n}"`).join('\n');
 
         return `port: 7890
@@ -595,6 +618,12 @@ dns:
     "geosite:geolocation-!cn":
       - "https://1.1.1.1/dns-query#节点选择"
       - "https://8.8.8.8/dns-query#节点选择"
+    "hyperliquid.xyz,+.hyperliquid.xyz":
+      - "https://1.1.1.1/dns-query#🎲 预测与交易"
+      - "https://8.8.8.8/dns-query#🎲 预测与交易"
+    "polymarket.com,+.polymarket.com":
+      - "https://1.1.1.1/dns-query#🎲 预测与交易"
+      - "https://8.8.8.8/dns-query#🎲 预测与交易"
     "ipleak.net,+.ipleak.net":
       - "https://1.1.1.1/dns-query#节点选择"
       - "https://8.8.8.8/dns-query#节点选择"
@@ -628,8 +657,23 @@ ${proxyGroupItems}
     proxies:
 ${proxyGroupItems}
 
+  - name: 🎲 预测与交易
+    type: fallback
+    url: https://api.hyperliquid.xyz/info
+    interval: 150
+    proxies:
+      - "🇦🇺 AWS-悉尼 (Reality)"
+      - "🇦🇺 AWS-悉尼 (Hysteria2)"
+      - "🇯🇵 日本东京-Vercel (域名直连)"
+      - "🇯🇵 日本东京-Vercel (香港优选)"
+      - "🇯🇵 日本东京-Vercel (Anycast优选)"
+
 rules:
   - AND,((NETWORK,udp),(DST-PORT,443)),REJECT
+  - DOMAIN-SUFFIX,hyperliquid.xyz,🎲 预测与交易
+  - DOMAIN-KEYWORD,hyperliquid,🎲 预测与交易
+  - DOMAIN-SUFFIX,polymarket.com,🎲 预测与交易
+  - DOMAIN-KEYWORD,polymarket,🎲 预测与交易
   - GEOSITE,cn,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,节点选择
