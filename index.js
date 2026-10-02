@@ -621,11 +621,11 @@ dns:
       - "https://1.1.1.1/dns-query#节点选择"
       - "https://8.8.8.8/dns-query#节点选择"
     "hyperliquid.xyz,+.hyperliquid.xyz":
-      - "https://1.1.1.1/dns-query#🎲 预测与交易"
-      - "https://8.8.8.8/dns-query#🎲 预测与交易"
+      - "https://1.1.1.1/dns-query#🎯 交易钉死"
+      - "https://8.8.8.8/dns-query#🎯 交易钉死"
     "polymarket.com,+.polymarket.com":
-      - "https://1.1.1.1/dns-query#🎲 预测与交易"
-      - "https://8.8.8.8/dns-query#🎲 预测与交易"
+      - "https://1.1.1.1/dns-query#🎯 交易钉死"
+      - "https://8.8.8.8/dns-query#🎯 交易钉死"
     "ipleak.net,+.ipleak.net":
       - "https://1.1.1.1/dns-query#节点选择"
       - "https://8.8.8.8/dns-query#节点选择"
@@ -670,12 +670,21 @@ ${proxyGroupItems}
       - "🇯🇵 日本东京-Vercel (香港优选)"
       - "🇯🇵 日本东京-Vercel (Anycast优选)"
 
+  - name: 🎯 交易钉死
+    type: select
+    proxies:
+      - "🇦🇺 AWS-悉尼 (Reality)"
+      - "🇦🇺 AWS-悉尼 (Hysteria2)"
+      - "🇯🇵 日本东京-Vercel (域名直连)"
+      - "🇯🇵 日本东京-Vercel (香港优选)"
+      - "🇯🇵 日本东京-Vercel (Anycast优选)"
+
 rules:
   - AND,((NETWORK,udp),(DST-PORT,443)),REJECT
-  - DOMAIN-SUFFIX,hyperliquid.xyz,🎲 预测与交易
-  - DOMAIN-KEYWORD,hyperliquid,🎲 预测与交易
-  - DOMAIN-SUFFIX,polymarket.com,🎲 预测与交易
-  - DOMAIN-KEYWORD,polymarket,🎲 预测与交易
+  - DOMAIN-SUFFIX,hyperliquid.xyz,🎯 交易钉死
+  - DOMAIN-KEYWORD,hyperliquid,🎯 交易钉死
+  - DOMAIN-SUFFIX,polymarket.com,🎯 交易钉死
+  - DOMAIN-KEYWORD,polymarket,🎯 交易钉死
   - GEOSITE,cn,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,节点选择
