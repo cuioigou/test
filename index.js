@@ -624,7 +624,7 @@ dns:
     "polymarket.com,+.polymarket.com":
       - "https://1.1.1.1/dns-query#🎲 预测与交易"
       - "https://8.8.8.8/dns-query#🎲 预测与交易"
-    "9now.com.au,+.9now.com.au,nine.com.au,+.nine.com.au,7plus.com.au,+.7plus.com.au,sevenwestmedia.com.au,+.sevenwestmedia.com.au,swm.digital,+.swm.digital,abc.net.au,+.abc.net.au,iview.abc.net.au,+.iview.abc.net.au,sbs.com.au,+.sbs.com.au,sbsondemand.com.au,+.sbsondemand.com.au,10play.com.au,+.10play.com.au,ten.com.au,+.ten.com.au,stan.com.au,+.stan.com.au,binge.com.au,+.binge.com.au,kayosports.com.au,+.kayosports.com.au,streamotion.com.au,+.streamotion.com.au,optussport.tv,+.optussport.tv":
+    "9now.com.au,+.9now.com.au,nine.com.au,+.nine.com.au,7plus.com.au,+.7plus.com.au,sevenwestmedia.com.au,+.sevenwestmedia.com.au,swm.digital,+.swm.digital,abc.net.au,+.abc.net.au,iview.abc.net.au,+.iview.abc.net.au,sbs.com.au,+.sbs.com.au,sbsondemand.com.au,+.sbsondemand.com.au,theplatform.com,+.theplatform.com,sbsvodns-vh.akamaihd.net,+.sbsvodns-vh.akamaihd.net,10play.com.au,+.10play.com.au,ten.com.au,+.ten.com.au,stan.com.au,+.stan.com.au,binge.com.au,+.binge.com.au,kayosports.com.au,+.kayosports.com.au,streamotion.com.au,+.streamotion.com.au,optussport.tv,+.optussport.tv":
       - "https://1.1.1.1/dns-query#🦘 澳洲媒体"
       - "https://8.8.8.8/dns-query#🦘 澳洲媒体"
     "ipleak.net,+.ipleak.net":
@@ -697,6 +697,8 @@ rules:
   - DOMAIN-SUFFIX,abcforkids.net.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,sbs.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,sbsondemand.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,theplatform.com,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbsvodns-vh.akamaihd.net,🦘 澳洲媒体
   - DOMAIN-SUFFIX,10play.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,ten.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,networkten.com.au,🦘 澳洲媒体
