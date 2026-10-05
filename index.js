@@ -576,9 +576,7 @@ async function generateLinks(argoDomain) {
         for (const sp of staticProxies) proxyLines.push(sp.yaml);
         const staticNames = staticProxies.map(s => s.name);
 
-        // 日常主组只留美国节点：自动选择按延迟会吸到悉尼(140ms)，导致日常流量跑澳洲；
-        // 日澳5节点只在 🎲 预测与交易 里保留（见下方），日常锁定美国主IP (2026-09-29)
-        const proxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
+        const proxyNames = [...staticNames, ...vlessNames, ...trojanNames, ...vmessNames];
         const proxyGroupItems = proxyNames.map(n => `      - "${n}"`).join('\n');
 
         return `port: 7890
@@ -626,6 +624,9 @@ dns:
     "polymarket.com,+.polymarket.com":
       - "https://1.1.1.1/dns-query#🎲 预测与交易"
       - "https://8.8.8.8/dns-query#🎲 预测与交易"
+    "9now.com.au,+.9now.com.au,nine.com.au,+.nine.com.au,7plus.com.au,+.7plus.com.au,sevenwestmedia.com.au,+.sevenwestmedia.com.au,swm.digital,+.swm.digital,abc.net.au,+.abc.net.au,iview.abc.net.au,+.iview.abc.net.au,sbs.com.au,+.sbs.com.au,sbsondemand.com.au,+.sbsondemand.com.au,10play.com.au,+.10play.com.au,ten.com.au,+.ten.com.au,stan.com.au,+.stan.com.au,binge.com.au,+.binge.com.au,kayosports.com.au,+.kayosports.com.au,streamotion.com.au,+.streamotion.com.au,optussport.tv,+.optussport.tv":
+      - "https://1.1.1.1/dns-query#🦘 澳洲媒体"
+      - "https://8.8.8.8/dns-query#🦘 澳洲媒体"
     "ipleak.net,+.ipleak.net":
       - "https://1.1.1.1/dns-query#节点选择"
       - "https://8.8.8.8/dns-query#节点选择"
@@ -639,6 +640,7 @@ proxy-groups:
     proxies:
       - 自动选择
       - 故障转移
+      - 🦘 澳洲媒体
 ${proxyGroupItems}
       - DIRECT
 
@@ -659,6 +661,15 @@ ${proxyGroupItems}
     proxies:
 ${proxyGroupItems}
 
+  - name: 🦘 澳洲媒体
+    type: fallback
+    url: http://cp.cloudflare.com/generate_204
+    interval: 180
+    lazy: true
+    proxies:
+      - "🇦🇺 AWS-悉尼 (Reality)"
+      - "🇦🇺 AWS-悉尼 (Hysteria2)"
+
   - name: 🎲 预测与交易
     type: fallback
     url: https://api.hyperliquid.xyz/info
@@ -676,6 +687,24 @@ rules:
   - DOMAIN-KEYWORD,hyperliquid,🎲 预测与交易
   - DOMAIN-SUFFIX,polymarket.com,🎲 预测与交易
   - DOMAIN-KEYWORD,polymarket,🎲 预测与交易
+  - DOMAIN-SUFFIX,9now.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,nine.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,7plus.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sevenwestmedia.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,swm.digital,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,iview.abc.net.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,abc.net.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,abcforkids.net.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbs.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbsondemand.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,10play.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,ten.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,networkten.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,stan.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,binge.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,kayosports.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,streamotion.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,optussport.tv,🦘 澳洲媒体
   - GEOSITE,cn,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,节点选择
