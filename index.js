@@ -640,7 +640,6 @@ proxy-groups:
     proxies:
       - 自动选择
       - 故障转移
-      - 🦘 澳洲媒体
 ${proxyGroupItems}
       - DIRECT
 
