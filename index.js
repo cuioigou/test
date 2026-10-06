@@ -576,8 +576,9 @@ async function generateLinks(argoDomain) {
         for (const sp of staticProxies) proxyLines.push(sp.yaml);
         const staticNames = staticProxies.map(s => s.name);
 
-        const proxyNames = [...staticNames, ...vlessNames, ...trojanNames, ...vmessNames];
-        const proxyGroupItems = proxyNames.map(n => `      - "${n}"`).join('\n');
+        // 常规出口（节点选择、自动选择、故障转移）只包含美国 OVH 节点，严格隔离澳洲/日本专用节点
+        const usProxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
+        const proxyGroupItems = usProxyNames.map(n => `      - "${n}"`).join('\n');
 
         return `port: 7890
 socks-port: 7891
