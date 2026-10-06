@@ -624,7 +624,7 @@ dns:
     "polymarket.com,+.polymarket.com":
       - "https://1.1.1.1/dns-query#🎲 预测与交易"
       - "https://8.8.8.8/dns-query#🎲 预测与交易"
-    "9now.com.au,+.9now.com.au,nine.com.au,+.nine.com.au,7plus.com.au,+.7plus.com.au,sevenwestmedia.com.au,+.sevenwestmedia.com.au,swm.digital,+.swm.digital,abc.net.au,+.abc.net.au,iview.abc.net.au,+.iview.abc.net.au,sbs.com.au,+.sbs.com.au,sbsondemand.com.au,+.sbsondemand.com.au,theplatform.com,+.theplatform.com,sbsvodns-vh.akamaihd.net,+.sbsvodns-vh.akamaihd.net,10play.com.au,+.10play.com.au,ten.com.au,+.ten.com.au,stan.com.au,+.stan.com.au,binge.com.au,+.binge.com.au,kayosports.com.au,+.kayosports.com.au,streamotion.com.au,+.streamotion.com.au,optussport.tv,+.optussport.tv":
+    "9now.com.au,+.9now.com.au,nine.com.au,+.nine.com.au,7plus.com.au,+.7plus.com.au,sevenwestmedia.com.au,+.sevenwestmedia.com.au,swm.digital,+.swm.digital,abc.net.au,+.abc.net.au,iview.abc.net.au,+.iview.abc.net.au,sbs.com.au,+.sbs.com.au,sbsondemand.com.au,+.sbsondemand.com.au,sbsod.com,+.sbsod.com,videocdn-sbs.akamaized.net,+.videocdn-sbs.akamaized.net,theplatform.com,+.theplatform.com,sbsvodns-vh.akamaihd.net,+.sbsvodns-vh.akamaihd.net,sbsvoddai-vh.akamaihd.net,+.sbsvoddai-vh.akamaihd.net,10play.com.au,+.10play.com.au,ten.com.au,+.ten.com.au,stan.com.au,+.stan.com.au,stan.video,+.stan.video,binge.com.au,+.binge.com.au,kayosports.com.au,+.kayosports.com.au,streamotion.com.au,+.streamotion.com.au,optussport.tv,+.optussport.tv":
       - "https://1.1.1.1/dns-query#🦘 澳洲媒体"
       - "https://8.8.8.8/dns-query#🦘 澳洲媒体"
     "ipleak.net,+.ipleak.net":
@@ -686,26 +686,51 @@ rules:
   - DOMAIN-KEYWORD,hyperliquid,🎲 预测与交易
   - DOMAIN-SUFFIX,polymarket.com,🎲 预测与交易
   - DOMAIN-KEYWORD,polymarket,🎲 预测与交易
+  - DOMAIN-SUFFIX,sbs.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbsondemand.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbsod.com,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,videocdn-sbs.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbs-live.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbs-live-dai.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbs-vod-prod-01.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbs-vod-dai-prod-01.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbsvodns-vh.akamaihd.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,sbsvoddai-vh.akamaihd.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,theplatform.com,🦘 澳洲媒体
   - DOMAIN-SUFFIX,9now.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,nine.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,nineentertainment.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,nineentertainmentco.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,ninemediaroom.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,ninemsn.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,p-9now.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,9now-livestreams.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,9now-livestreams-hd-t.akamaized.net,🦘 澳洲媒体
   - DOMAIN-SUFFIX,7plus.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,sevenwestmedia.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,swm.digital,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,seven.demdex.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,npc-live-sevennetwork.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,7plus-sevennetwork.akamaized.net,🦘 澳洲媒体
   - DOMAIN-SUFFIX,iview.abc.net.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,abc.net.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,abcforkids.net.au,🦘 澳洲媒体
-  - DOMAIN-SUFFIX,sbs.com.au,🦘 澳洲媒体
-  - DOMAIN-SUFFIX,sbsondemand.com.au,🦘 澳洲媒体
-  - DOMAIN-SUFFIX,theplatform.com,🦘 澳洲媒体
-  - DOMAIN-SUFFIX,sbsvodns-vh.akamaihd.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,abc-iview-mediapackagestreams-2.akamaized.net,🦘 澳洲媒体
   - DOMAIN-SUFFIX,10play.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,ten.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,networkten.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,stan.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,stan.video,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,live01-stan.akamaized.net,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,live02-stan.akamaized.net,🦘 澳洲媒体
   - DOMAIN-SUFFIX,binge.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,kayosports.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,streamotion.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,optus.com.au,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,optusdigital.com,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,optusnet.com.au,🦘 澳洲媒体
   - DOMAIN-SUFFIX,optussport.tv,🦘 澳洲媒体
+  - DOMAIN-SUFFIX,optusvideo.tv,🦘 澳洲媒体
   - GEOSITE,cn,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,节点选择
