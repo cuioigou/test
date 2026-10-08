@@ -461,7 +461,7 @@ async function getMetaInfo() {
   return 'Unknown';
 }
 // 生成 list 和 sub 信息
-// 动态获取针对中国移动/广电的最新优选 IP 池 (基于 cmliu addressesapi)
+// 动态获取针对中国联通、中国移动/广电的最新优选 IP 池 (基于 cmliu addressesapi)
 function fetchDynamicCleanIps() {
   return new Promise((resolve) => {
     const https = require('https');
@@ -478,15 +478,21 @@ function fetchDynamicCleanIps() {
             .filter(l => l.includes('CM-'))
             .map(l => l.split('#')[0].trim())
             .filter(ip => /^(\d{1,3}\.){3}\d{1,3}$/.test(ip));
-          const uniqueCm = [...new Set(cmIps)];
-          resolve(uniqueCm.slice(0, 3));
+          const cuIps = lines
+            .filter(l => l.includes('CU-'))
+            .map(l => l.split('#')[0].trim())
+            .filter(ip => /^(\d{1,3}\.){3}\d{1,3}$/.test(ip));
+          resolve({
+            cm: [...new Set(cmIps)].slice(0, 3),
+            cu: [...new Set(cuIps)].slice(0, 3)
+          });
         } catch (e) {
-          resolve([]);
+          resolve({ cm: [], cu: [] });
         }
       });
     });
-    req.on('error', () => resolve([]));
-    req.on('timeout', () => { req.destroy(); resolve([]); });
+    req.on('error', () => resolve({ cm: [], cu: [] }));
+    req.on('timeout', () => { req.destroy(); resolve({ cm: [], cu: [] }); });
   });
 }
 
@@ -494,23 +500,26 @@ async function generateLinks(argoDomain) {
   const ISP = await getMetaInfo();
   const nodeName = NAME ? `${NAME}-${ISP}` : ISP;
 
-  let dynamicCm = [];
+  let dynamicClean = { cm: [], cu: [] };
   try {
-    dynamicCm = await fetchDynamicCleanIps();
-    console.log('Fetched dynamic CM clean IPs:', dynamicCm);
+    dynamicClean = await fetchDynamicCleanIps();
+    console.log('Fetched dynamic clean IPs:', dynamicClean);
   } catch (e) {
-    console.log('Fetch dynamic CM clean IPs failed, using fallback.');
+    console.log('Fetch dynamic clean IPs failed, using fallback.');
   }
 
-  const fallbackCm = ['104.16.160.1', '104.17.160.1', '104.18.160.1'];
-  const cmList = (dynamicCm && dynamicCm.length >= 2) ? dynamicCm : fallbackCm;
+  const fallbackCm = ['172.67.150.238', '172.67.71.6', '104.17.160.1'];
+  const fallbackCu = ['162.159.192.1', '104.16.160.1', '162.159.236.194'];
+  const cmList = (dynamicClean.cm && dynamicClean.cm.length >= 2) ? dynamicClean.cm : fallbackCm;
+  const cuList = (dynamicClean.cu && dynamicClean.cu.length >= 2) ? dynamicClean.cu : fallbackCu;
 
   const cfEndpoints = [
-    { ip: CFIP || '198.41.222.226', tag: `${nodeName}-官方Anycast` },
-    { ip: cmList[0] || '104.16.160.1', tag: `${nodeName}-移动动态优选1` },
-    { ip: cmList[1] || '104.17.160.1', tag: `${nodeName}-移动动态优选2` },
-    { ip: cmList[2] || '104.18.160.1', tag: `${nodeName}-移动动态优选3` },
-    { ip: 'icook.hk', tag: `${nodeName}-香港企业优选` }
+    { ip: cuList[0] || '162.159.192.1', tag: `${nodeName}-联通动态优选1` },
+    { ip: cuList[1] || '104.16.160.1', tag: `${nodeName}-联通动态优选2` },
+    { ip: cmList[0] || '172.67.150.238', tag: `${nodeName}-移动动态优选1` },
+    { ip: cmList[1] || '172.67.71.6', tag: `${nodeName}-移动动态优选2` },
+    { ip: 'icook.hk', tag: `${nodeName}-香港企业优选` },
+    { ip: CFIP || '198.41.222.226', tag: `${nodeName}-官方Anycast` }
   ];
 
   return new Promise((resolve) => {
@@ -580,6 +589,12 @@ async function generateLinks(argoDomain) {
         const usProxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
         const proxyGroupItems = usProxyNames.map(n => `      - "${n}"`).join('\n');
 
+        // 提取联通专属与移动专属节点列表，供自适应策略组使用
+        const cuProxyNames = usProxyNames.filter(n => n.includes('联通'));
+        const cmProxyNames = usProxyNames.filter(n => n.includes('移动') || n.includes('香港'));
+        const cuProxyGroupItems = cuProxyNames.map(n => `      - "${n}"`).join('\n');
+        const cmProxyGroupItems = cmProxyNames.map(n => `      - "${n}"`).join('\n');
+
         return `port: 7890
 socks-port: 7891
 allow-lan: false
@@ -605,8 +620,8 @@ dns:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
   fallback:
+    - https://doh.pub/dns-query
     - "https://1.1.1.1/dns-query#节点选择"
-    - "https://8.8.8.8/dns-query#节点选择"
   fallback-filter:
     geoip: true
     geoip-code: CN
@@ -616,9 +631,6 @@ dns:
     "geosite:cn":
       - https://doh.pub/dns-query
       - https://dns.alidns.com/dns-query
-    "geosite:geolocation-!cn":
-      - "https://1.1.1.1/dns-query#节点选择"
-      - "https://8.8.8.8/dns-query#节点选择"
     "hyperliquid.xyz,+.hyperliquid.xyz":
       - "https://1.1.1.1/dns-query#🎲 预测与交易"
       - "https://8.8.8.8/dns-query#🎲 预测与交易"
@@ -641,25 +653,45 @@ proxy-groups:
     proxies:
       - 自动选择
       - 故障转移
+      - 📶 联通优选
+      - 📶 移动广电优选
 ${proxyGroupItems}
       - DIRECT
 
   - name: 自动选择
     type: url-test
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-    tolerance: 150
-    lazy: true
+    url: https://cp.cloudflare.com/generate_204
+    interval: 180
+    tolerance: 50
+    lazy: false
     proxies:
 ${proxyGroupItems}
 
   - name: 故障转移
     type: fallback
-    url: http://www.gstatic.com/generate_204
-    interval: 300
+    url: https://cp.cloudflare.com/generate_204
+    interval: 180
     lazy: true
     proxies:
 ${proxyGroupItems}
+
+  - name: 📶 联通优选
+    type: url-test
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+    proxies:
+${cuProxyGroupItems}
+
+  - name: 📶 移动广电优选
+    type: url-test
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+    proxies:
+${cmProxyGroupItems}
 
   - name: 🦘 澳洲媒体
     type: fallback
