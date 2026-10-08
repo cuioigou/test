@@ -508,10 +508,15 @@ async function generateLinks(argoDomain) {
     console.log('Fetch dynamic clean IPs failed, using fallback.');
   }
 
-  const fallbackCm = ['172.67.150.238', '172.67.71.6', '104.17.160.1'];
+  const fallbackCm = ['198.41.208.86', '104.17.160.1', '162.159.160.66'];
   const fallbackCu = ['162.159.192.1', '104.16.160.1', '162.159.236.194'];
-  const cmList = (dynamicClean.cm && dynamicClean.cm.length >= 2) ? dynamicClean.cm : fallbackCm;
-  const cuList = (dynamicClean.cu && dynamicClean.cu.length >= 2) ? dynamicClean.cu : fallbackCu;
+  let cmList = (dynamicClean.cm && dynamicClean.cm.length >= 2) ? [...new Set(dynamicClean.cm)] : [...fallbackCm];
+  let cuList = (dynamicClean.cu && dynamicClean.cu.length >= 2) ? [...new Set(dynamicClean.cu)] : [...fallbackCu];
+  // 去重：CU与CM若出现相同IP（如动态API返回重叠），从CM中剔除重叠项并用fallback补齐，保证双网真实隔离
+  cuList = [...new Set(cuList)].slice(0, 3);
+  cmList = [...new Set(cmList)].filter(ip => !cuList.includes(ip));
+  for (const fip of fallbackCm) { if (cmList.length >= 3) break; if (!cuList.includes(fip) && !cmList.includes(fip)) cmList.push(fip); }
+  cmList = cmList.slice(0, 3);
 
   const cfEndpoints = [
     { ip: cuList[0] || '162.159.192.1', tag: `${nodeName}-联通动态优选1` },
@@ -587,8 +592,11 @@ async function generateLinks(argoDomain) {
         const staticNames = staticProxies.map(s => s.name);
 
         // 常规出口（节点选择、自动选择、故障转移）只包含美国 OVH 节点，严格隔离澳洲/日本专用节点
+        // VLESS优先：自动/故障转移只跑VLESS+Trojan（12节点），VMess仅保留手动直选，避免0.1核CPU排队与url-test自DDoS
         const usProxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
+        const autoProxyNames = [...vlessNames, ...trojanNames];
         const proxyGroupItems = usProxyNames.map(n => `      - "${n}"`).join('\n');
+        const autoProxyGroupItems = autoProxyNames.map(n => `      - "${n}"`).join('\n');
 
         // 提取联通专属与移动专属节点列表，供自适应策略组使用
         const cuProxyNames = usProxyNames.filter(n => n.includes('联通'));
@@ -618,10 +626,10 @@ dns:
     - 223.5.5.5
     - 119.29.29.29
   nameserver:
-    - https://doh.pub/dns-query
+    - https://223.5.5.5/dns-query
     - https://dns.alidns.com/dns-query
   fallback:
-    - https://doh.pub/dns-query
+    - https://223.5.5.5/dns-query
     - "https://1.1.1.1/dns-query#节点选择"
   fallback-filter:
     geoip: true
@@ -630,7 +638,7 @@ dns:
       - 240.0.0.0/4
   nameserver-policy:
     "geosite:cn":
-      - https://doh.pub/dns-query
+      - https://223.5.5.5/dns-query
       - https://dns.alidns.com/dns-query
     "hyperliquid.xyz,+.hyperliquid.xyz":
       - "https://1.1.1.1/dns-query#🎲 预测与交易"
@@ -662,11 +670,11 @@ ${proxyGroupItems}
   - name: 自动选择
     type: url-test
     url: https://cp.cloudflare.com/generate_204
-    interval: 180
-    tolerance: 50
-    lazy: false
+    interval: 300
+    tolerance: 150
+    lazy: true
     proxies:
-${proxyGroupItems}
+${autoProxyGroupItems}
 
   - name: 故障转移
     type: fallback
@@ -674,13 +682,13 @@ ${proxyGroupItems}
     interval: 180
     lazy: true
     proxies:
-${proxyGroupItems}
+${autoProxyGroupItems}
 
   - name: 📶 联通优选
     type: url-test
     url: https://cp.cloudflare.com/generate_204
     interval: 300
-    tolerance: 50
+    tolerance: 150
     lazy: true
     proxies:
 ${cuProxyGroupItems}
@@ -689,7 +697,7 @@ ${cuProxyGroupItems}
     type: url-test
     url: https://cp.cloudflare.com/generate_204
     interval: 300
-    tolerance: 50
+    tolerance: 150
     lazy: true
     proxies:
 ${cmProxyGroupItems}
