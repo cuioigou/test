@@ -576,6 +576,7 @@ async function generateLinks(argoDomain) {
         }
 
         const staticProxies = [
+          { name: '🇦🇺 AWS-悉尼 (中转加速)', yaml: `  - name: "🇦🇺 AWS-悉尼 (中转加速)"\n    type: vless\n    server: 52.63.184.33\n    port: 443\n    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8\n    network: tcp\n    tls: true\n    udp: true\n    flow: xtls-rprx-vision\n    servername: itunes.apple.com\n    reality-opts:\n      public-key: sRgRqjxLPHK9FhGyVodwm7lTrj5H6dae8fwTn8dd4Vg\n      short-id: e8a9b2c3\n    client-fingerprint: chrome\n    dialer-proxy: "US_OVH US LLC-香港企业优选-VLESS"` },
           { name: '🇦🇺 AWS-悉尼 (Reality)', yaml: `  - name: "🇦🇺 AWS-悉尼 (Reality)"\n    type: vless\n    server: 52.63.184.33\n    port: 443\n    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8\n    network: tcp\n    tls: true\n    udp: true\n    flow: xtls-rprx-vision\n    servername: itunes.apple.com\n    reality-opts:\n      public-key: sRgRqjxLPHK9FhGyVodwm7lTrj5H6dae8fwTn8dd4Vg\n      short-id: e8a9b2c3\n    client-fingerprint: chrome` },
           { name: '🇦🇺 AWS-悉尼 (Hysteria2)', yaml: `  - name: "🇦🇺 AWS-悉尼 (Hysteria2)"\n    type: hysteria2\n    server: 52.63.184.33\n    port: 443\n    password: nishishabi\n    sni: itunes.apple.com\n    skip-cert-verify: true` },
           { name: '🇯🇵 日本东京-Vercel (域名直连)', yaml: `  - name: "🇯🇵 日本东京-Vercel (域名直连)"\n    type: vless\n    server: jp.litex1024.dpdns.org\n    port: 443\n    uuid: f773fcf5-7d63-4583-a707-2bce59ee1ae8\n    cipher: none\n    tls: true\n    client-fingerprint: chrome\n    servername: jp.litex1024.dpdns.org\n    network: ws\n    ws-opts:\n      path: "/f773fcf5"\n      headers:\n        Host: jp.litex1024.dpdns.org\n      heartbeat-interval: 20` },
@@ -699,6 +700,7 @@ ${cmProxyGroupItems}
     interval: 180
     lazy: true
     proxies:
+      - "🇦🇺 AWS-悉尼 (中转加速)"
       - "🇦🇺 AWS-悉尼 (Reality)"
       - "🇦🇺 AWS-悉尼 (Hysteria2)"
 
@@ -707,6 +709,7 @@ ${cmProxyGroupItems}
     url: https://api.hyperliquid.xyz/info
     interval: 150
     proxies:
+      - "🇦🇺 AWS-悉尼 (中转加速)"
       - "🇦🇺 AWS-悉尼 (Reality)"
       - "🇦🇺 AWS-悉尼 (Hysteria2)"
       - "🇯🇵 日本东京-Vercel (域名直连)"
@@ -893,6 +896,7 @@ proxy-groups:
   - name: 节点选择
     type: select
     proxies:
+      - "🇦🇺 AWS-悉尼 (中转加速)"
       - "🇦🇺 AWS-悉尼 (Reality)"
       - "🇦🇺 AWS-悉尼 (Hysteria2)"
       - DIRECT
