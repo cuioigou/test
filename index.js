@@ -1595,6 +1595,7 @@ rules:
         text = text.replaceAll("path: '/?ed=2048'", "path: '/f773fcf5'");
         // 2. 拔除递归死锁（带前置缩进与多行匹配，根除缩进Bug）
         text = text.replace(/^[ \t]*'geosite:geolocation-!cn':\r?\n(?:\s*-\s*.*\r?\n)+/gm, '');
+        text = text.replace(/^[ \t]+('hyperliquid\.xyz.*?':)/gm, '    $1');
         // 3. 为所有 fallback 分组补充 lazy: true 与 timeout: 10000（杜绝并发雪崩与超时误判）
         text = text.replace(/( - name: [^\n]+\r?\n\s+type: fallback\r?\n[\s\S]*?)(proxies:)/g, (match, prefix, proxies) => {
           let cleaned = prefix;
