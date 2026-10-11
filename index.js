@@ -1020,11 +1020,11 @@ async function generateLinks(argoDomain) {
 
   const fallbackCm = ['198.41.208.86', '104.17.160.1', '162.159.160.66'];
 
-  const fallbackCu = ['162.159.192.1', '104.16.160.1', '162.159.236.194'];
+  const fallbackCu = ['198.41.209.134', '198.41.209.248', '162.159.192.1', '104.16.160.1'];
 
   let cmList = (dynamicClean.cm && dynamicClean.cm.length >= 2) ? [...new Set(dynamicClean.cm)] : [...fallbackCm];
 
-  let cuList = (dynamicClean.cu && dynamicClean.cu.length >= 2) ? [...new Set(dynamicClean.cu)] : [...fallbackCu];
+  let cuList = (dynamicClean.cu && dynamicClean.cu.length >= 2) ? [...new Set(dynamicClean.cu)].filter(ip => ip !== '172.67.149.54') : [...fallbackCu];
 
   // 去重：CU与CM若出现相同IP（如动态API返回重叠），从CM中剔除重叠项并用fallback补齐，保证双网真实隔离
 
@@ -1256,7 +1256,7 @@ dns:
 
     - https://223.5.5.5/dns-query
 
-    - "https://1.1.1.1/dns-query#节点选择"
+    - https://1.1.1.1/dns-query
 
   fallback-filter:
 
@@ -1286,8 +1286,8 @@ dns:
       - "https://1.1.1.1/dns-query#🦘 澳洲媒体"
       - "https://8.8.8.8/dns-query#🦘 澳洲媒体"
     "ipleak.net,+.ipleak.net":
-      - "https://1.1.1.1/dns-query#节点选择"
-      - "https://8.8.8.8/dns-query#节点选择"
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
 
 
 
@@ -1325,11 +1325,11 @@ ${proxyGroupItems}
 
     url: https://cp.cloudflare.com/generate_204
 
-    interval: 300
+    interval: 180
 
-    tolerance: 150
+    tolerance: 100
 
-    lazy: true
+    lazy: false
 
     proxies:
 
@@ -1359,11 +1359,11 @@ ${autoProxyGroupItems}
 
     url: https://cp.cloudflare.com/generate_204
 
-    interval: 300
+    interval: 180
 
-    tolerance: 150
+    tolerance: 100
 
-    lazy: true
+    lazy: false
 
     proxies:
 
