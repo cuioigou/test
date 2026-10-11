@@ -1000,58 +1000,14 @@ async function generateLinks(argoDomain) {
 
   const nodeName = NAME ? `${NAME}-${ISP}` : ISP;
 
-
-
-  let dynamicClean = { cm: [], cu: [] };
-
-  try {
-
-    dynamicClean = await fetchDynamicCleanIps();
-
-    console.log('Fetched dynamic clean IPs:', dynamicClean);
-
-  } catch (e) {
-
-    console.log('Fetch dynamic clean IPs failed, using fallback.');
-
-  }
-
-
-
-  const fallbackCm = ['198.41.208.86', '104.17.160.1', '162.159.160.66'];
-
-  const fallbackCu = ['198.41.209.134', '198.41.209.248', '162.159.192.1', '104.16.160.1'];
-
-  let cmList = (dynamicClean.cm && dynamicClean.cm.length >= 2) ? [...new Set(dynamicClean.cm)] : [...fallbackCm];
-
-  let cuList = (dynamicClean.cu && dynamicClean.cu.length >= 2) ? [...new Set(dynamicClean.cu)].filter(ip => ip !== '172.67.149.54') : [...fallbackCu];
-
-  // 去重：CU与CM若出现相同IP（如动态API返回重叠），从CM中剔除重叠项并用fallback补齐，保证双网真实隔离
-
-  cuList = [...new Set(cuList)].slice(0, 3);
-
-  cmList = [...new Set(cmList)].filter(ip => !cuList.includes(ip));
-
-  for (const fip of fallbackCm) { if (cmList.length >= 3) break; if (!cuList.includes(fip) && !cmList.includes(fip)) cmList.push(fip); }
-
-  cmList = cmList.slice(0, 3);
-
-
-
+  // 极简高性能模式：精简外部动态爬虫，直连全国低延迟、0丢包金牌 Anycast 端点矩阵
   const cfEndpoints = [
-
-    { ip: cuList[0] || '162.159.192.1', tag: `${nodeName}-联通动态优选1` },
-
-    { ip: cuList[1] || '104.16.160.1', tag: `${nodeName}-联通动态优选2` },
-
-    { ip: cmList[0] || '172.67.150.238', tag: `${nodeName}-移动动态优选1` },
-
-    { ip: cmList[1] || '172.67.71.6', tag: `${nodeName}-移动动态优选2` },
-
+    { ip: '104.16.160.1', tag: `${nodeName}-联通优选1` },
+    { ip: '198.41.209.134', tag: `${nodeName}-联通优选2` },
+    { ip: '198.41.208.86', tag: `${nodeName}-移动优选1` },
+    { ip: '162.159.160.66', tag: `${nodeName}-移动优选2` },
     { ip: 'icook.hk', tag: `${nodeName}-香港企业优选` },
-
     { ip: CFIP || '198.41.222.226', tag: `${nodeName}-官方Anycast` }
-
   ];
 
 
@@ -1188,7 +1144,8 @@ async function generateLinks(argoDomain) {
 
         const usProxyNames = [...vlessNames, ...trojanNames, ...vmessNames];
 
-        const autoProxyNames = [...vlessNames, ...trojanNames];
+        // 极简高性能：自动选择与优选组仅保留轻量 VLESS 节点，杜绝 VMess 双重加密吞噬 0.1 核 CPU
+        const autoProxyNames = [...vlessNames];
 
         const proxyGroupItems = usProxyNames.map(n => `      - "${n}"`).join('\n');
 
@@ -1325,11 +1282,11 @@ ${proxyGroupItems}
 
     url: https://cp.cloudflare.com/generate_204
 
-    interval: 180
+    interval: 300
 
-    tolerance: 100
+    tolerance: 150
 
-    lazy: false
+    lazy: true
 
     proxies:
 
@@ -1343,7 +1300,7 @@ ${autoProxyGroupItems}
 
     url: https://cp.cloudflare.com/generate_204
 
-    interval: 180
+    interval: 300
 
     lazy: true
 
@@ -1359,11 +1316,11 @@ ${autoProxyGroupItems}
 
     url: https://cp.cloudflare.com/generate_204
 
-    interval: 180
+    interval: 300
 
-    tolerance: 100
+    tolerance: 150
 
-    lazy: false
+    lazy: true
 
     proxies:
 
@@ -2103,50 +2060,9 @@ cleanFiles();
 // 自动访问项目URL
 
 async function AddVisitTask() {
-
-  if (!AUTO_ACCESS || !PROJECT_URL) {
-
-    console.log("Skipping adding automatic access task");
-
-    return;
-
-  }
-
-
-
-  try {
-
-    const response = await axios.post('https://oooo.serv00.net/add-url', {
-
-      url: PROJECT_URL
-
-    }, {
-
-      headers: {
-
-        'Content-Type': 'application/json'
-
-      }
-
-    });
-
-    // console.log(`${JSON.stringify(response.data)}`);
-
-    console.log(`automatic access task added successfully`);
-
-    return response;
-
-  } catch (error) {
-
-    console.error(`Add automatic access task faild: ${error.message}`);
-
-    return null;
-
-  }
-
+  // 精简模式：已移除第三方 serv00 冗余调用，自愈保活统一由本地定时器承载
+  return null;
 }
-
-
 
 // 主运行逻辑
 
