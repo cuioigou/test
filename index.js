@@ -1205,15 +1205,15 @@ dns:
 
   nameserver:
 
-    - https://223.5.5.5/dns-query
+    - "https://1.1.1.1/dns-query#自动选择"
 
-    - https://dns.alidns.com/dns-query
+    - "https://8.8.8.8/dns-query#自动选择"
 
   fallback:
 
-    - https://223.5.5.5/dns-query
+    - "https://1.1.1.1/dns-query"
 
-    - https://1.1.1.1/dns-query
+    - "https://8.8.8.8/dns-query"
 
   fallback-filter:
 
@@ -1243,8 +1243,11 @@ dns:
       - "https://1.1.1.1/dns-query#🦘 澳洲媒体"
       - "https://8.8.8.8/dns-query#🦘 澳洲媒体"
     "ipleak.net,+.ipleak.net":
-      - https://1.1.1.1/dns-query
-      - https://8.8.8.8/dns-query
+      - "https://1.1.1.1/dns-query#自动选择"
+      - "https://8.8.8.8/dns-query#自动选择"
+    "browserleaks.com,+.browserleaks.com":
+      - "https://1.1.1.1/dns-query#自动选择"
+      - "https://8.8.8.8/dns-query#自动选择"
 
 
 
@@ -1388,12 +1391,26 @@ ${cmProxyGroupItems}
 
 rules:
 
+  - DOMAIN-SUFFIX,browserleaks.com,自动选择
+  - DOMAIN-SUFFIX,ipleak.net,自动选择
+  - DOMAIN-SUFFIX,ipinfo.io,自动选择
+  - DOMAIN-SUFFIX,api.ipify.org,自动选择
   - AND,((NETWORK,udp),(DST-PORT,443)),REJECT
 
   - DST-PORT,3478,REJECT
 
   - DST-PORT,19302,REJECT
 
+  - DOMAIN-SUFFIX,stun.l.google.com,自动选择
+  - DOMAIN-SUFFIX,stun1.l.google.com,自动选择
+  - DOMAIN-SUFFIX,stun2.l.google.com,自动选择
+  - DOMAIN-SUFFIX,stun3.l.google.com,自动选择
+  - DOMAIN-SUFFIX,stun4.l.google.com,自动选择
+  - DOMAIN-SUFFIX,stun.cloudflare.com,自动选择
+  - DOMAIN-SUFFIX,stun.stunprotocol.org,自动选择
+  - DOMAIN-SUFFIX,global.stun.twilio.com,自动选择
+  - DOMAIN-SUFFIX,stun.nextcloud.com,自动选择
+  - DOMAIN-SUFFIX,stun.voipbuster.com,自动选择
   - DOMAIN-SUFFIX,hyperliquid.xyz,🎲 预测与交易
 
   - DOMAIN-KEYWORD,hyperliquid,🎲 预测与交易
