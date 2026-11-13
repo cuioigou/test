@@ -600,7 +600,7 @@ uuid: ${UUID}`;
 
     if (ARGO_AUTH.match(/^[A-Za-z0-9+/=_-]{100,300}$/)) {
 
-      args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --ha-connections 2 --heartbeat-count 5 --post-quantum false run --token ${ARGO_AUTH}`;
+      args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 run --token ${ARGO_AUTH}`;
 
     } else if (ARGO_AUTH.match(/TunnelSecret/)) {
 
@@ -608,7 +608,7 @@ uuid: ${UUID}`;
 
     } else {
 
-      args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --ha-connections 2 --heartbeat-count 5 --post-quantum false --logfile ${FILE_PATH}/boot.log --loglevel info --url http://localhost:${ARGO_PORT}`;
+      args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile ${FILE_PATH}/boot.log --loglevel info --url http://localhost:${ARGO_PORT}`;
 
     }
 
@@ -852,7 +852,7 @@ async function extractDomains() {
 
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
-        const args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --ha-connections 2 --heartbeat-count 5 --post-quantum false --logfile ${FILE_PATH}/boot.log --loglevel info --url http://localhost:${ARGO_PORT}`;
+        const args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile ${FILE_PATH}/boot.log --loglevel info --url http://localhost:${ARGO_PORT}`;
 
         try {
 
